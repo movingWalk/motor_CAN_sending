@@ -1,0 +1,8 @@
+Drivers/
+EWARM/
+Inc/
+.mxproject
+canopen_example.ioc
+/Src/CANOpen
+/Src/*.c
+!/Src/main.c
