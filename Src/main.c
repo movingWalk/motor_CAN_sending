@@ -24,7 +24,6 @@
 /* USER CODE BEGIN Includes */
 #include "CANOpen/CANOpen.h"
 #include <math.h>
-#include "CANOpen/CANOpen_hw_appl.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,6 +63,8 @@ static void MX_TIM2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+
+//**************************motor configuration*************************//
 #define P_MIN -12.5f
 #define P_MAX 12.5f
 #define V_MIN -45.0f
@@ -75,7 +76,7 @@ static void MX_TIM2_Init(void);
 #define T_MIN -15.0f
 #define T_MAX 15.0f
 
-//initialize value
+//************************initialize value*******************************//
 float torque=0.0f;
 float position=0.0f;
 float velocity=0.0f;
@@ -88,6 +89,7 @@ float t_in =0.0f;
 
 uint8_t buffer[8];
 
+//************************sending CAN******************************//
 //when sending packet, all the numbers should be converted into integer numbers
 int float_to_uint(float x, float x_min, float x_max, int bits){
     /// Converts a float to an unsigned int, given range and number of bits ///
@@ -122,6 +124,8 @@ void pack_cmd(uint8_t* buffer, float p_des, float v_des, float kp, float kd, flo
   
 }
 
+
+//*********************************CAN Receiving********************************//
 float uint_to_float(int x_int, float x_min, float x_max, int bits){ 
     /// converts unsigned int to float, given range and number of bits ///
     float span = x_max - x_min;
@@ -156,6 +160,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }  
 }
 
+//*********************************Extra Motor Function********************************//
 void pull_up(){
   p_in=position;
   v_in=0.0f;
@@ -206,6 +211,8 @@ void set_zero(){
   CANOpen_sendFrame(1, buffer, 8);
 }
 
+
+//****************************Interrupt*************************//
 uint8_t flag=0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ // 10kHz Loop
