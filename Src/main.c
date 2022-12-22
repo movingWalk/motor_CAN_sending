@@ -22,7 +22,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "CANOpen/CANOpen.h"
 #include <math.h>
 /* USER CODE END Includes */
 
@@ -44,7 +43,6 @@
  CAN_HandleTypeDef hcan1;
 
 TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 
@@ -55,7 +53,6 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM1_Init(void);
-static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -90,6 +87,20 @@ float t_in =0.0f;
 uint8_t buffer[8];
 
 //************************sending CAN******************************//
+CAN_TxHeaderTypeDef   TxHeader;
+uint32_t              TxMailbox;
+
+void sendFrame_std(uint16_t ID, uint8_t* data, uint8_t len){
+  
+  TxHeader.StdId = ID;
+  TxHeader.RTR = CAN_RTR_DATA;
+  TxHeader.IDE = CAN_ID_STD;
+  TxHeader.DLC = len;
+  while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0);
+  HAL_CAN_AddTxMessage(&hcan1, &TxHeader, data, &TxMailbox);
+  while(HAL_CAN_IsTxMessagePending(&hcan1, TxMailbox) == 1);
+}
+
 //when sending packet, all the numbers should be converted into integer numbers
 int float_to_uint(float x, float x_min, float x_max, int bits){
     /// Converts a float to an unsigned int, given range and number of bits ///
@@ -155,7 +166,6 @@ CAN_RxHeaderTypeDef   Rx0Header;
 uint8_t               Rx0Data[8];
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
-    CANOpen_addRxBuffer(Rx0Header.StdId, Rx0Data);
     unpack_reply(Rx0Data);
   }  
 }
@@ -169,7 +179,7 @@ void pull_up(){
   t_in =0.0f;
   
   pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in);
-  CANOpen_sendFrame(1, buffer, 8);
+  sendFrame_std(1, buffer, 8);
 }
 
 void enter_motor_mode(){
@@ -182,7 +192,7 @@ void enter_motor_mode(){
   buffer[6]=0xFF;
   buffer[7]=0xFC;
 
-  CANOpen_sendFrame(1, buffer, 8);
+  sendFrame_std(1, buffer, 8);
 }
 
 void exit_motor_mode(){
@@ -195,7 +205,7 @@ void exit_motor_mode(){
   buffer[6]=0xFF;
   buffer[7]=0xFD;
 
-  CANOpen_sendFrame(1, buffer, 8);
+  sendFrame_std(1, buffer, 8);
 }
 
 void set_zero(){
@@ -208,7 +218,7 @@ void set_zero(){
   buffer[6]=0xFF;
   buffer[7]=0xFE;
   
-  CANOpen_sendFrame(1, buffer, 8);
+  sendFrame_std(1, buffer, 8);
 }
 
 
@@ -216,11 +226,8 @@ void set_zero(){
 uint8_t flag=0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ // 10kHz Loop
-    CANOpen_timerLoop();
-  }else if(htim == &htim2){ // 1kHz main Loop
-     pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in);
-      
-     CANOpen_sendFrame(1, buffer, 8);
+     pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in); 
+     sendFrame_std(1, buffer, 8);
     
   }
 }
@@ -238,17 +245,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     }
     else if(flag==2){
       // [[ Timer1 Init ]]
-      // Start Timer1 to check timeout of CANOpen response (10kHz)
+      // [[ Start main loop ]] (1kHz)
       HAL_TIM_Base_Start_IT(&htim1);
-      
-      // [[ Start main loop ]]
-      HAL_TIM_Base_Start_IT(&htim2);
+
       }
     else if(flag==3){
       pull_up();                                         //0 set (parking gear)
     }
     else if(flag==4){ 
-      HAL_TIM_Base_Stop_IT(&htim2);
       HAL_TIM_Base_Stop_IT(&htim1);
       exit_motor_mode();                                 //exit
       }
@@ -291,7 +295,6 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN1_Init();
   MX_TIM1_Init();
-  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   
   // [[ CAN Init ]]
@@ -434,7 +437,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 5999;
+  htim1.Init.Period = 59999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -456,51 +459,6 @@ static void MX_TIM1_Init(void)
   /* USER CODE BEGIN TIM1_Init 2 */
 
   /* USER CODE END TIM1_Init 2 */
-
-}
-
-/**
-  * @brief TIM2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_TIM2_Init(void)
-{
-
-  /* USER CODE BEGIN TIM2_Init 0 */
-
-  /* USER CODE END TIM2_Init 0 */
-
-  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
-  TIM_MasterConfigTypeDef sMasterConfig = {0};
-
-  /* USER CODE BEGIN TIM2_Init 1 */
-
-  /* USER CODE END TIM2_Init 1 */
-  htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
-  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 59999;
-  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN TIM2_Init 2 */
-
-  /* USER CODE END TIM2_Init 2 */
 
 }
 
