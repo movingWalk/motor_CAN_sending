@@ -27,7 +27,25 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef enum {
+  CAN_PACKET_SET_DUTY = 0, //Duty cycle mode
+  CAN_PACKET_SET_CURRENT, //Current loop mode
+  CAN_PACKET_SET_CURRENT_BRAKE, // Current brake mode
+  CAN_PACKET_SET_RPM, //Velocity mode
+  CAN_PACKET_SET_POS, // Position mode
+  CAN_PACKET_SET_ORIGIN_HERE, //Set origin mode
+  CAN_PACKET_SET_POS_SPD, //Position velocity loop mode
+  } CAN_PACKET_ID;
 
+typedef enum {
+    NO_ERROR = 0,
+    OVER_TEMP_FAULT,
+    OVER_CURRENT_FAULT,
+    OVER_VOLTAGE_FAULT,
+    UNDER_VOLTAGE_FAULT,
+    ENCODER_FAULT,
+    PHASE_CURRENT_UNBALANCE_FAULT,
+  } ERROR_CODES;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -43,6 +61,7 @@
  CAN_HandleTypeDef hcan1;
 
 TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 
 /* USER CODE BEGIN PV */
 
@@ -53,6 +72,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -61,125 +81,120 @@ static void MX_TIM1_Init(void);
 /* USER CODE BEGIN 0 */
 
 
-//**************************motor configuration*************************//
-#define P_MIN -12.5f
-#define P_MAX 12.5f
-#define V_MIN -45.0f
-#define V_MAX 45.0f
-#define Kp_MIN 0.0f
-#define Kp_MAX 500.0f
-#define Kd_MIN 0.0f
-#define Kd_MAX 5.0f
-#define T_MIN -15.0f
-#define T_MAX 15.0f
-
-//************************initialize value*******************************//
-float torque=0.0f;
-float position=0.0f;
-float velocity=0.0f;
-
-float p_in=0.0f;
-float v_in=0.0f;
-float kp_in = 50.0f;
-float kd_in = 1.0f;
-float t_in =0.0f;
-
-uint8_t buffer[8];
-
-//************************sending CAN******************************//
-CAN_TxHeaderTypeDef   TxHeader;
-uint32_t              TxMailbox;
-
-void sendFrame_std(uint16_t ID, uint8_t* data, uint8_t len){
-  
-  TxHeader.StdId = ID;
-  TxHeader.RTR = CAN_RTR_DATA;
-  TxHeader.IDE = CAN_ID_STD;
-  TxHeader.DLC = len;
-  while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0);
-  HAL_CAN_AddTxMessage(&hcan1, &TxHeader, data, &TxMailbox);
-  while(HAL_CAN_IsTxMessagePending(&hcan1, TxMailbox) == 1);
-}
-
-//when sending packet, all the numbers should be converted into integer numbers
-int float_to_uint(float x, float x_min, float x_max, int bits){
-    /// Converts a float to an unsigned int, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return (unsigned int) ((x-offset)*((float)((1<<bits)-1))/span);
-    }
-
-//send routine
-void pack_cmd(uint8_t* buffer, float p_des, float v_des, float kp, float kd, float t_ff){
-  
-  p_des = fminf(fmaxf(P_MIN, p_des), P_MAX);   
-  v_des = fminf(fmaxf(V_MIN, v_des), V_MAX);
-  kp = fminf(fmaxf(Kp_MIN, kp), Kp_MAX);
-  kd = fminf(fmaxf(Kd_MIN, kd), Kd_MAX);
-  t_ff = fminf(fmaxf(T_MIN, t_ff), T_MAX);
-  /// convert floats to unsigned ints ///
-  unsigned int p_int = float_to_uint(p_des, P_MIN, P_MAX, 16);
-  unsigned int v_int = float_to_uint(v_des, V_MIN, V_MAX, 12);
-  unsigned int kp_int = float_to_uint(kp, Kp_MIN, Kp_MAX, 12);
-  unsigned int kd_int = float_to_uint(kd, Kd_MIN, Kd_MAX, 12);
-  unsigned int t_int = float_to_uint(t_ff, T_MIN, T_MAX, 12);
-  /// pack ints into the can buffer ///
-  buffer[0] = p_int>>8; // Position 8 higher
-  buffer[1] = p_int&0xFF; // Position 8 lower
-  buffer[2] = v_int>>4; // Speed 8 higher
-  buffer[3] = ((v_int&0xF)<<4)|(kp_int>>8); //Speed 4 bit lower KP 4bit higher
-  buffer[4] = kp_int&0xFF; // KP 8 bit lower
-  buffer[5] = kd_int>>4; // Kd 8 bit higher
-  buffer[6] = ((kd_int&0xF)<<4)|(kp_int>>8); //KP 4 bit lower torque 4 bit higher
-  buffer[7] = t_int&0xFF; // torque 4 bit lower
-  
-}
-
-
-//*********************************CAN Receiving********************************//
-float uint_to_float(int x_int, float x_min, float x_max, int bits){ 
-    /// converts unsigned int to float, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
-    }
-
-//receive routine
-void unpack_reply(uint8_t* buffer){
-  /// unpack ints from can buffer ///
-  int id = buffer[0]; //??ID
-  int p_int = (buffer[1]<<8)|buffer[2]; //Motor position data
-  int v_int = (buffer[3]<<4)|(buffer[4]>>4); // Motor speed data
-  int t_int = ((buffer[4]&0xF)<<8)|buffer[5]; // Motor torque data
-  /// convert ints to floats ///
-  float p = uint_to_float(p_int, P_MIN, P_MAX, 16);
-  float v = uint_to_float(v_int, V_MIN, V_MAX, 12);
-  float t = uint_to_float(t_int, T_MIN, T_MAX, 12);
-  if(id == 1){
-    position = p; //Read the corresponding data according to the ID code
-    velocity = v;
-    torque = t;
-  }
-}
-
+//**********************************receiving***************************//
 CAN_RxHeaderTypeDef   Rx0Header;
 uint8_t               Rx0Data[8];
+float motor_pos;
+float motor_spd;
+float motor_cur;
+int8_t motor_temp;
+int8_t motor_error;
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
-    unpack_reply(Rx0Data);
+    CANOpen_addRxBuffer(Rx0Header.ExtId, Rx0Data);
   }  
 }
 
-//*********************************Extra Motor Function********************************//
-void pull_up(){
-  p_in=position;
-  v_in=0.0f;
-  kp_in = 0.0f;
-  kd_in = 0.0f;
-  t_in =0.0f;
+//can receive protocol
+
+void motor_receive(uint8_t* rx_message)
+{
+  int16_t pos_int = rx_message[0] << 8 | rx_message[1];
+  int16_t spd_int = rx_message[2] << 8 | rx_message[3];
+  int16_t cur_int = rx_message[4] << 8 | rx_message[5];
+  motor_pos= (float)( pos_int * 0.1f); //motor position
+  motor_spd= (float)( spd_int * 10.0f);//motor speed
+  motor_cur= (float) ( cur_int * 0.01f);//motor current
+  motor_temp= rx_message[6] ;//motor temperature
+  motor_error= rx_message[7] ;//motor error mode
+}
+
+
+//**********************************sending***************************//
+uint8_t buffer[8];
+CAN_TxHeaderTypeDef   Tx0Header;
+uint32_t              Tx0Mailbox;
+void sendFrameEXTId(uint16_t ID, uint8_t* data, uint8_t len){
   
-  pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in);
-  sendFrame_std(1, buffer, 8);
+  Tx0Header.ExtId = ID;
+  Tx0Header.RTR = CAN_RTR_DATA;
+  Tx0Header.IDE = CAN_ID_EXT;
+  Tx0Header.DLC = len;
+  while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0);
+  HAL_CAN_AddTxMessage(&hcan1, &Tx0Header, data, &Tx0Mailbox);
+  while(HAL_CAN_IsTxMessagePending(&hcan1, Tx0Mailbox) == 1);
+}
+
+void buffer_append_int32(uint8_t* buffer, int32_t number, uint8_t *index) {
+  buffer[(*index)++] = number >> 24;
+  buffer[(*index)++] = number >> 16;
+  buffer[(*index)++] = number >> 8;
+  buffer[(*index)++] = number;
+}
+
+/*
+void buffer_append_int32(uint8_t* buffer, int32_t number, uint8_t *index) {
+  buffer[(*index)++] = number;
+  buffer[(*index)++] = number >> 8;
+  buffer[(*index)++] = number >> 16;
+  buffer[(*index)++] = number >> 24;
+}
+*/
+void buffer_append_int16(uint8_t* buffer, int16_t number, uint8_t *index) {
+  buffer[(*index)++] = number >> 8;
+  buffer[(*index)++] = number;
+}
+
+// sending protocol
+void comm_can_set_duty(uint8_t controller_id, float duty) {
+  uint8_t send_index = 0;
+  uint8_t buffer[4];
+  buffer_append_int32(buffer, (int32_t)(duty * 100000.0), &send_index);
+  sendFrameEXTId(controller_id |((uint32_t)CAN_PACKET_SET_DUTY << 8), buffer, send_index);
+}
+
+void comm_can_set_current(uint8_t controller_id, float current) {
+  uint8_t send_index = 0;
+  uint8_t buffer[4];
+  buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
+  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT << 8), buffer, send_index);
+}
+
+void comm_can_set_cb(uint8_t controller_id, float current) {
+  uint8_t send_index = 0;
+  uint8_t buffer[4];
+  buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
+  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT_BRAKE << 8), buffer, send_index);
+}
+
+void comm_can_set_rpm(uint8_t controller_id, float rpm) {
+  uint8_t send_index = 0;
+  uint8_t buffer[4];
+  buffer_append_int32(buffer, (int32_t)rpm, &send_index);
+  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_RPM << 8), buffer, send_index);
+}
+
+void comm_can_set_pos(uint8_t controller_id, float pos) {
+  uint8_t send_index = 0;
+  uint8_t buffer[4];
+  buffer_append_int32(buffer, (int32_t)(pos * 1000000.0), &send_index);
+  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_POS << 8), buffer, send_index);
+}
+
+void comm_can_set_origin(uint8_t controller_id, uint8_t set_origin_mode) {
+  uint8_t buffer[1];
+  buffer[0]=set_origin_mode;
+  sendFrameEXTId(controller_id | ((uint32_t) CAN_PACKET_SET_ORIGIN_HERE << 8), buffer, 1);
+}
+
+void comm_can_set_pos_spd(uint8_t controller_id, float pos,int16_t spd, int16_t RPA ) {
+  uint8_t send_index = 0;
+  uint8_t buffer[8];
+  buffer_append_int32(buffer, (int32_t)(pos * 10000.0), &send_index);
+  buffer_append_int16(buffer,spd*10, & send_index);
+  buffer_append_int16(buffer,RPA*10, & send_index);
+  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_POS_SPD << 8), buffer, send_index);
 }
 
 void enter_motor_mode(){
@@ -191,8 +206,8 @@ void enter_motor_mode(){
   buffer[5]=0xFF;
   buffer[6]=0xFF;
   buffer[7]=0xFC;
-
-  sendFrame_std(1, buffer, 8);
+  uint8_t id = 68;
+  sendFrameEXTId(id, buffer, 8);
 }
 
 void exit_motor_mode(){
@@ -204,64 +219,46 @@ void exit_motor_mode(){
   buffer[5]=0xFF;
   buffer[6]=0xFF;
   buffer[7]=0xFD;
-
-  sendFrame_std(1, buffer, 8);
-}
-
-void set_zero(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFE;
-  
-  sendFrame_std(1, buffer, 8);
+  uint8_t id = 68;
+  sendFrameEXTId( id, buffer, 8);
 }
 
 
-//****************************Interrupt*************************//
-uint8_t flag=0;
+//***************************loop*****************************//
+float rpm=1000.0f;
+uint8_t controller_id=68;
+
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ // 10kHz Loop
-     pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in); 
-     sendFrame_std(1, buffer, 8);
-    
+    CANOpen_timerLoop();
+  }else if(htim == &htim2){ // 1kHz main Loop
+    comm_can_set_rpm(controller_id, rpm);
   }
 }
 
 
-
+uint8_t flag=14;
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_13){
-    if(flag==0){
-      set_zero();                                         //set origin
-      //exit_motor_mode();
-    }
-    else if(flag==1){
-      enter_motor_mode();                                 //motor mode enter
-    }
-    else if(flag==2){
+    if(flag==14){
       // [[ Timer1 Init ]]
-      // [[ Start main loop ]] (1kHz)
+      // Start Timer1 to check timeout of CANOpen response (10kHz)
+      enter_motor_mode();                                 //motor mode enter
       HAL_TIM_Base_Start_IT(&htim1);
-
-      }
-    else if(flag==3){
-      pull_up();                                         //0 set (parking gear)
+      // [[ Start main loop ]]
+      HAL_TIM_Base_Start_IT(&htim2);
     }
-    else if(flag==4){ 
+    else if(flag==82){
+      HAL_TIM_Base_Stop_IT(&htim2);
       HAL_TIM_Base_Stop_IT(&htim1);
       exit_motor_mode();                                 //exit
+
+    }
+    else if(flag==2){
+      comm_can_set_rpm(controller_id, rpm);                    //send
       }
-    else if(flag==27){
-      float delta = 0.1f;
-      p_in = p_in+delta;
     }
   }
-}
 
 /* USER CODE END 0 */
 
@@ -295,6 +292,7 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN1_Init();
   MX_TIM1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   
   // [[ CAN Init ]]
@@ -313,8 +311,8 @@ int main(void)
 
   HAL_CAN_Start(&hcan1);
   HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING);
-  
-  
+
+
   
   
   /* USER CODE END 2 */
@@ -437,7 +435,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 59999;
+  htim1.Init.Period = 5999;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -459,6 +457,51 @@ static void MX_TIM1_Init(void)
   /* USER CODE BEGIN TIM1_Init 2 */
 
   /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 59999;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
 
 }
 
