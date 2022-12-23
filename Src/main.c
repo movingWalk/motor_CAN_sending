@@ -22,10 +22,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <math.h>
 #include "Functions/mit_sending.h"
 #include "Functions/mit_receiving.h"
 #include "Functions/extra_motor_function.h"
+#include "Functions/servo_sending.h"
+#include "Functions/servo_receiving.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,7 +64,67 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//************************initialize value*******************************//
+            /*
+            SERVO MODE
+            */
+
+uint8_t buffer[8];
+
+float motor_pos;
+float motor_spd;
+float motor_cur;
+int8_t motor_temp;
+int8_t motor_error;
+
+//****************************Interrupt*************************//
+CAN_RxHeaderTypeDef   Rx0Header;
+uint8_t               Rx0Data[8];
+float rpm=1000.0f;
+uint8_t controller_id=0x68;
+uint8_t flag=14;
+
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
+    motor_receive(Rx0Data);
+  }  
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  if(htim == &htim1){ 
+    comm_can_set_rpm(controller_id, rpm);
+  }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+  if(GPIO_Pin == GPIO_PIN_13){
+    if(flag==14){
+      // [[ Timer1 Init ]]
+      // [[ Start main loop ]] (1kHz)
+      enter_motor_mode_servo(controller_id);                                 //motor mode enter
+      
+      
+      //HAL_TIM_Base_Start_IT(&htim1);
+      
+    }
+    else if(flag==82){
+      
+      //HAL_TIM_Base_Stop_IT(&htim1);
+      exit_motor_mode_servo(controller_id);                                 //exit
+
+    }
+    else if(flag==2){
+      comm_can_set_rpm(controller_id, rpm);                    //send
+      }
+    }
+  }
+
+/*
+                                .
+                                .
+                                .
+                                MIT MODE
+
+//-----------------------initialize value---------------------------//
 float torque=0.0f;
 float position=0.0f;
 float velocity=0.0f;
@@ -77,7 +138,7 @@ float t_in =0.0f;
 uint8_t TxData[8];
 
 
-//****************************Interrupt*************************//
+//-----------------------Interrupt---------------------------------//
 CAN_RxHeaderTypeDef   Rx0Header;
 uint8_t               Rx0Data[8];
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
@@ -123,6 +184,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     }
   }
 }
+
+.
+.
+.
+*/
+
+
 
 /* USER CODE END 0 */
 
