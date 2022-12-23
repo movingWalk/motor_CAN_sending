@@ -23,6 +23,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <math.h>
+#include "Functions/mit_sending.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -60,19 +61,6 @@ static void MX_TIM1_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-
-//**************************motor configuration*************************//
-#define P_MIN -12.5f
-#define P_MAX 12.5f
-#define V_MIN -45.0f
-#define V_MAX 45.0f
-#define Kp_MIN 0.0f
-#define Kp_MAX 500.0f
-#define Kd_MIN 0.0f
-#define Kd_MAX 5.0f
-#define T_MIN -15.0f
-#define T_MAX 15.0f
-
 //************************initialize value*******************************//
 float torque=0.0f;
 float position=0.0f;
@@ -85,55 +73,6 @@ float kd_in = 1.0f;
 float t_in =0.0f;
 
 uint8_t buffer[8];
-
-//************************sending CAN******************************//
-CAN_TxHeaderTypeDef   TxHeader;
-uint32_t              TxMailbox;
-
-void sendFrame_std(uint16_t ID, uint8_t* data, uint8_t len){
-  
-  TxHeader.StdId = ID;
-  TxHeader.RTR = CAN_RTR_DATA;
-  TxHeader.IDE = CAN_ID_STD;
-  TxHeader.DLC = len;
-  while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0);
-  HAL_CAN_AddTxMessage(&hcan1, &TxHeader, data, &TxMailbox);
-  while(HAL_CAN_IsTxMessagePending(&hcan1, TxMailbox) == 1);
-}
-
-//when sending packet, all the numbers should be converted into integer numbers
-int float_to_uint(float x, float x_min, float x_max, int bits){
-    /// Converts a float to an unsigned int, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return (unsigned int) ((x-offset)*((float)((1<<bits)-1))/span);
-    }
-
-//send routine
-void pack_cmd(uint8_t* buffer, float p_des, float v_des, float kp, float kd, float t_ff){
-  
-  p_des = fminf(fmaxf(P_MIN, p_des), P_MAX);   
-  v_des = fminf(fmaxf(V_MIN, v_des), V_MAX);
-  kp = fminf(fmaxf(Kp_MIN, kp), Kp_MAX);
-  kd = fminf(fmaxf(Kd_MIN, kd), Kd_MAX);
-  t_ff = fminf(fmaxf(T_MIN, t_ff), T_MAX);
-  /// convert floats to unsigned ints ///
-  unsigned int p_int = float_to_uint(p_des, P_MIN, P_MAX, 16);
-  unsigned int v_int = float_to_uint(v_des, V_MIN, V_MAX, 12);
-  unsigned int kp_int = float_to_uint(kp, Kp_MIN, Kp_MAX, 12);
-  unsigned int kd_int = float_to_uint(kd, Kd_MIN, Kd_MAX, 12);
-  unsigned int t_int = float_to_uint(t_ff, T_MIN, T_MAX, 12);
-  /// pack ints into the can buffer ///
-  buffer[0] = p_int>>8; // Position 8 higher
-  buffer[1] = p_int&0xFF; // Position 8 lower
-  buffer[2] = v_int>>4; // Speed 8 higher
-  buffer[3] = ((v_int&0xF)<<4)|(kp_int>>8); //Speed 4 bit lower KP 4bit higher
-  buffer[4] = kp_int&0xFF; // KP 8 bit lower
-  buffer[5] = kd_int>>4; // Kd 8 bit higher
-  buffer[6] = ((kd_int&0xF)<<4)|(kp_int>>8); //KP 4 bit lower torque 4 bit higher
-  buffer[7] = t_int&0xFF; // torque 4 bit lower
-  
-}
 
 
 //*********************************CAN Receiving********************************//
