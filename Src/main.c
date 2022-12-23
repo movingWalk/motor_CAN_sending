@@ -25,6 +25,7 @@
 #include <math.h>
 #include "Functions/mit_sending.h"
 #include "Functions/mit_receiving.h"
+#include "Functions/extra_motor_function.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,63 +74,7 @@ float kp_in = 50.0f;
 float kd_in = 1.0f;
 float t_in =0.0f;
 
-uint8_t buffer[8];
-
-
-
-
-
-
-//*********************************Extra Motor Function********************************//
-void pull_up(){
-  p_in=position;
-  v_in=0.0f;
-  kp_in = 0.0f;
-  kd_in = 0.0f;
-  t_in =0.0f;
-  
-  pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in);
-  sendFrame_std(1, buffer, 8);
-}
-
-void enter_motor_mode(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFC;
-
-  sendFrame_std(1, buffer, 8);
-}
-
-void exit_motor_mode(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFD;
-
-  sendFrame_std(1, buffer, 8);
-}
-
-void set_zero(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFE;
-  
-  sendFrame_std(1, buffer, 8);
-}
+uint8_t TxData[8];
 
 
 //****************************Interrupt*************************//
@@ -144,8 +89,8 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 uint8_t flag=0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ // 10kHz Loop
-     pack_cmd(buffer, p_in, v_in, kp_in, kd_in, t_in); 
-     sendFrame_std(1, buffer, 8);
+     pack_cmd(TxData, p_in, v_in, kp_in, kd_in, t_in); 
+     sendFrame_std(1, TxData, 8);
     
   }
 }

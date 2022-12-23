@@ -1073,6 +1073,12 @@
             <group>
                 <name>Functions</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\extra_motor_function.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\extra_motor_function.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\Functions\mit_receiving.c</name>
                 </file>
                 <file>

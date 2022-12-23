@@ -86,3 +86,7 @@
 12	359	6934778013334784	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
 366	481	6934778014591155	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	51c967eed700c074
 505	521	6934778015079848	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+2	95	6934785202720739	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/extra_motor_function.o	3ac59f2c60e0435a
+2	322	6934785343939082	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+332	446	6934785345205691	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	df92304573851ade
+471	487	6934785345704059	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
