@@ -22,30 +22,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <math.h>
+#include "Functions/servo_sending.h"
+#include "Functions/servo_receiving.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef enum {
-  CAN_PACKET_SET_DUTY = 0, //Duty cycle mode
-  CAN_PACKET_SET_CURRENT, //Current loop mode
-  CAN_PACKET_SET_CURRENT_BRAKE, // Current brake mode
-  CAN_PACKET_SET_RPM, //Velocity mode
-  CAN_PACKET_SET_POS, // Position mode
-  CAN_PACKET_SET_ORIGIN_HERE, //Set origin mode
-  CAN_PACKET_SET_POS_SPD, //Position velocity loop mode
-  } CAN_PACKET_ID;
 
-typedef enum {
-    NO_ERROR = 0,
-    OVER_TEMP_FAULT,
-    OVER_CURRENT_FAULT,
-    OVER_VOLTAGE_FAULT,
-    UNDER_VOLTAGE_FAULT,
-    ENCODER_FAULT,
-    PHASE_CURRENT_UNBALANCE_FAULT,
-  } ERROR_CODES;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -77,31 +60,17 @@ static void MX_TIM1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-
-//**********************************receiving***************************//
-CAN_RxHeaderTypeDef   Rx0Header;
-uint8_t               Rx0Data[8];
+uint8_t buffer[8];
 float motor_pos;
 float motor_spd;
 float motor_cur;
 int8_t motor_temp;
 int8_t motor_error;
 
+//**********************************Interrupt***************************//
+CAN_RxHeaderTypeDef   Rx0Header;
+uint8_t               Rx0Data[8];
 
-//can receive protocol
-
-void motor_receive(uint8_t* rx_message)
-{
-  int16_t pos_int = rx_message[0] << 8 | rx_message[1];
-  int16_t spd_int = rx_message[2] << 8 | rx_message[3];
-  int16_t cur_int = rx_message[4] << 8 | rx_message[5];
-  motor_pos= (float)( pos_int * 0.1f); //motor position
-  motor_spd= (float)( spd_int * 10.0f);//motor speed
-  motor_cur= (float) ( cur_int * 0.01f);//motor current
-  motor_temp= rx_message[6] ;//motor temperature
-  motor_error= rx_message[7] ;//motor error mode
-}
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
@@ -109,120 +78,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }  
 }
 
-//**********************************sending***************************//
-uint8_t buffer[8];
-CAN_TxHeaderTypeDef   Tx0Header;
-uint32_t              Tx0Mailbox;
-void sendFrameEXTId(uint16_t ID, uint8_t* data, uint8_t len){
-  
-  Tx0Header.ExtId = ID;
-  Tx0Header.RTR = CAN_RTR_DATA;
-  Tx0Header.IDE = CAN_ID_EXT;
-  Tx0Header.DLC = len;
-  while(HAL_CAN_GetTxMailboxesFreeLevel(&hcan1) == 0);
-  HAL_CAN_AddTxMessage(&hcan1, &Tx0Header, data, &Tx0Mailbox);
-  while(HAL_CAN_IsTxMessagePending(&hcan1, Tx0Mailbox) == 1);
-}
-
-void buffer_append_int32(uint8_t* buffer, int32_t number, uint8_t *index) {
-  buffer[(*index)++] = number >> 24;
-  buffer[(*index)++] = number >> 16;
-  buffer[(*index)++] = number >> 8;
-  buffer[(*index)++] = number;
-}
-
-/*
-void buffer_append_int32(uint8_t* buffer, int32_t number, uint8_t *index) {
-  buffer[(*index)++] = number;
-  buffer[(*index)++] = number >> 8;
-  buffer[(*index)++] = number >> 16;
-  buffer[(*index)++] = number >> 24;
-}
-*/
-void buffer_append_int16(uint8_t* buffer, int16_t number, uint8_t *index) {
-  buffer[(*index)++] = number >> 8;
-  buffer[(*index)++] = number;
-}
-
-// sending protocol
-void comm_can_set_duty(uint8_t controller_id, float duty) {
-  uint8_t send_index = 0;
-  uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)(duty * 100000.0), &send_index);
-  sendFrameEXTId(controller_id |((uint32_t)CAN_PACKET_SET_DUTY << 8), buffer, send_index);
-}
-
-void comm_can_set_current(uint8_t controller_id, float current) {
-  uint8_t send_index = 0;
-  uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
-  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT << 8), buffer, send_index);
-}
-
-void comm_can_set_cb(uint8_t controller_id, float current) {
-  uint8_t send_index = 0;
-  uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)(current * 1000.0), &send_index);
-  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_CURRENT_BRAKE << 8), buffer, send_index);
-}
-
-void comm_can_set_rpm(uint8_t controller_id, float rpm) {
-  uint8_t send_index = 0;
-  uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)rpm, &send_index);
-  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_RPM << 8), buffer, send_index);
-}
-
-void comm_can_set_pos(uint8_t controller_id, float pos) {
-  uint8_t send_index = 0;
-  uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)(pos * 1000000.0), &send_index);
-  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_POS << 8), buffer, send_index);
-}
-
-void comm_can_set_origin(uint8_t controller_id, uint8_t set_origin_mode) {
-  uint8_t buffer[1];
-  buffer[0]=set_origin_mode;
-  sendFrameEXTId(controller_id | ((uint32_t) CAN_PACKET_SET_ORIGIN_HERE << 8), buffer, 1);
-}
-
-void comm_can_set_pos_spd(uint8_t controller_id, float pos,int16_t spd, int16_t RPA ) {
-  uint8_t send_index = 0;
-  uint8_t buffer[8];
-  buffer_append_int32(buffer, (int32_t)(pos * 10000.0), &send_index);
-  buffer_append_int16(buffer,spd*10, & send_index);
-  buffer_append_int16(buffer,RPA*10, & send_index);
-  sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_POS_SPD << 8), buffer, send_index);
-}
-
-void enter_motor_mode(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFC;
-  uint8_t id = 0x68;
-  sendFrameEXTId(id, buffer, 8);
-}
-
-void exit_motor_mode(){
-  buffer[0]=0xFF;
-  buffer[1]=0xFF;
-  buffer[2]=0xFF;
-  buffer[3]=0xFF;
-  buffer[4]=0xFF;
-  buffer[5]=0xFF;
-  buffer[6]=0xFF;
-  buffer[7]=0xFD;
-  uint8_t id = 0x68;
-  sendFrameEXTId( id, buffer, 8);
-}
-
-
-//***************************loop*****************************//
 float rpm=1000.0f;
 uint8_t controller_id=0x68;
 
@@ -239,7 +94,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     if(flag==14){
       // [[ Timer1 Init ]]
       // [[ Start main loop ]] (1kHz)
-      enter_motor_mode();                                 //motor mode enter
+      enter_motor_mode(controller_id);                                 //motor mode enter
       
       
       //HAL_TIM_Base_Start_IT(&htim1);
@@ -248,7 +103,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
     else if(flag==82){
       
       //HAL_TIM_Base_Stop_IT(&htim1);
-      exit_motor_mode();                                 //exit
+      exit_motor_mode(controller_id);                                 //exit
 
     }
     else if(flag==2){

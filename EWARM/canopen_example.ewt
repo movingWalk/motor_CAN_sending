@@ -1433,6 +1433,21 @@
         </group>
         <group>
             <name>User</name>
+            <group>
+                <name>Functions</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_receiving.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_receiving.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_sending.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_sending.h</name>
+                </file>
+            </group>
             <file>
                 <name>$PROJ_DIR$\..\Src\main.c</name>
             </file>
