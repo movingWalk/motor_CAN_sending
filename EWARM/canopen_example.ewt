@@ -1436,6 +1436,12 @@
             <group>
                 <name>Functions</name>
                 <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_receiving.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_receiving.h</name>
+                </file>
+                <file>
                     <name>$PROJ_DIR$\..\Src\Functions\mit_sending.c</name>
                 </file>
                 <file>

@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 #include <math.h>
 #include "Functions/mit_sending.h"
+#include "Functions/mit_receiving.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,39 +76,9 @@ float t_in =0.0f;
 uint8_t buffer[8];
 
 
-//*********************************CAN Receiving********************************//
-float uint_to_float(int x_int, float x_min, float x_max, int bits){ 
-    /// converts unsigned int to float, given range and number of bits ///
-    float span = x_max - x_min;
-    float offset = x_min;
-    return ((float)x_int)*span/((float)((1<<bits)-1)) + offset;
-    }
 
-//receive routine
-void unpack_reply(uint8_t* buffer){
-  /// unpack ints from can buffer ///
-  int id = buffer[0]; //??ID
-  int p_int = (buffer[1]<<8)|buffer[2]; //Motor position data
-  int v_int = (buffer[3]<<4)|(buffer[4]>>4); // Motor speed data
-  int t_int = ((buffer[4]&0xF)<<8)|buffer[5]; // Motor torque data
-  /// convert ints to floats ///
-  float p = uint_to_float(p_int, P_MIN, P_MAX, 16);
-  float v = uint_to_float(v_int, V_MIN, V_MAX, 12);
-  float t = uint_to_float(t_int, T_MIN, T_MAX, 12);
-  if(id == 1){
-    position = p; //Read the corresponding data according to the ID code
-    velocity = v;
-    torque = t;
-  }
-}
 
-CAN_RxHeaderTypeDef   Rx0Header;
-uint8_t               Rx0Data[8];
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
-  if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
-    unpack_reply(Rx0Data);
-  }  
-}
+
 
 //*********************************Extra Motor Function********************************//
 void pull_up(){
@@ -162,6 +133,14 @@ void set_zero(){
 
 
 //****************************Interrupt*************************//
+CAN_RxHeaderTypeDef   Rx0Header;
+uint8_t               Rx0Data[8];
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
+    unpack_reply(Rx0Data);
+  }  
+}
+
 uint8_t flag=0;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ // 10kHz Loop
@@ -170,8 +149,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     
   }
 }
-
-
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_13){
