@@ -27,6 +27,7 @@
 #include "Functions/extra_motor_function.h"
 #include "Functions/servo_sending.h"
 #include "Functions/servo_receiving.h"
+#include "Functions/motor_control_demos.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,12 +77,20 @@ float motor_cur;
 int8_t motor_temp;
 int8_t motor_error;
 
+
+float rpm=300.0f;
+float position=180.0f;
+float acceleration = 100.0f;
+float current = 0.0f;
+float duty = 0.0f;
+
+
+uint8_t controller_id=1;
+uint8_t flag=14;
 //****************************Interrupt*************************//
 CAN_RxHeaderTypeDef   Rx0Header;
 uint8_t               Rx0Data[8];
-float rpm=1000.0f;
-uint8_t controller_id=0x68;
-uint8_t flag=14;
+
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
@@ -91,32 +100,42 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   if(htim == &htim1){ 
-    comm_can_set_rpm(controller_id, rpm);
+    //comm_can_set_rpm(controller_id, rpm);
+    //comm_can_set_pos(controller_id, position);
+    //comm_can_set_current(controller_id, current);
+    //comm_can_set_duty(controller_id, duty);
+    gravity_compensation(controller_id, 0.2, 1, 0.52);
+   
   }
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_13){
-    if(flag==14){
+    if (flag==0){
+      comm_can_set_origin(controller_id, 1);
+    }
+    else if(flag==14){
       // [[ Timer1 Init ]]
       // [[ Start main loop ]] (1kHz)
-      enter_motor_mode_servo(controller_id);                                 //motor mode enter
-      
-      
-      //HAL_TIM_Base_Start_IT(&htim1);
+      gravity_compensation_initialize(controller_id);
+      HAL_TIM_Base_Start_IT(&htim1);
       
     }
     else if(flag==82){
       
-      //HAL_TIM_Base_Stop_IT(&htim1);
+      HAL_TIM_Base_Stop_IT(&htim1);
       exit_motor_mode_servo(controller_id);                                 //exit
 
     }
     else if(flag==2){
-      comm_can_set_rpm(controller_id, rpm);                    //send
+      // comm_can_set_rpm(controller_id, rpm);                    //send
+      //comm_can_set_pos(controller_id, position);
+      //comm_can_set_current(controller_id, current);
+      //comm_can_set_duty(controller_id, duty);
       }
     }
   }
+
 
 /*
                                 .
@@ -364,9 +383,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 1;
+  htim1.Init.Prescaler = 399;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 59999;
+  htim1.Init.Period = 1499;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

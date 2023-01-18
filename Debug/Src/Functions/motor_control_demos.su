@@ -1,0 +1,2 @@
+../Src/Functions/motor_control_demos.c:9:6:gravity_compensation_initialize	16	static
+../Src/Functions/motor_control_demos.c:18:6:gravity_compensation	32	static

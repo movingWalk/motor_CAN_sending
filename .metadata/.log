@@ -1,0 +1,32 @@
+!SESSION 2023-01-12 12:10:59.517 -----------------------------------------------
+eclipse.buildId=Version 1.9.0
+java.version=11.0.11
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ko_KR
+Framework arguments:  C:\Users\KwakDongwook\Documents\canopen_example\.cproject
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\KwakDongwook\Documents\canopen_example\.cproject
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-01-12 12:11:15.763
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-01-12 12:11:15.823
+!MESSAGE Log4j initialized with config file C:\Users\KwakDongwook\Documents\canopen_example\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-01-12 12:11:17.729
+!MESSAGE Started RMI Server, listening on port 41337
+!SESSION 2023-01-12 12:11:25.229 -----------------------------------------------
+eclipse.buildId=Version 1.9.0
+java.version=11.0.11
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=ko_KR
+Framework arguments:  C:\Users\KwakDongwook\Documents\canopen_example\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\KwakDongwook\Documents\canopen_example\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2023-01-12 12:11:33.463
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2023-01-12 12:11:33.509
+!MESSAGE Log4j initialized with config file C:\Users\KwakDongwook\Documents\canopen_example\.metadata\.log4j.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2023-01-12 12:11:35.754
+!MESSAGE Started RMI Server, listening on port 41337

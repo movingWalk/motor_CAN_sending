@@ -1,9 +1,9 @@
 #include "mit_receiving.h"
 #include "mit_sending.h"
 
-extern float torque;
-extern float position;
-extern float velocity;
+extern float motor_cur;
+extern float motor_pos;
+extern float motor_spd;
 
 //*********************************CAN Receiving********************************//
 float uint_to_float(int x_int, float x_min, float x_max, int bits){ 
@@ -45,9 +45,9 @@ void unpack_reply(uint8_t* buffer){
   float v = uint_to_float(v_int, V_MIN, V_MAX, 12);
   float t = uint_to_float(t_int, T_MIN, T_MAX, 12);
   if(id == 1){
-    position = p; //Read the corresponding data according to the ID code
-    velocity = v;
-    torque = t;
+    motor_pos = p; //Read the corresponding data according to the ID code
+    motor_spd = v;
+    motor_cur = t;
   }
 }
 

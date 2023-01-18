@@ -67,7 +67,7 @@ void comm_can_set_rpm(uint8_t controller_id, float rpm) {
 void comm_can_set_pos(uint8_t controller_id, float pos) {
   uint8_t send_index = 0;
   uint8_t buffer[4];
-  buffer_append_int32(buffer, (int32_t)(pos * 1000000.0), &send_index);
+  buffer_append_int32(buffer, (int32_t)(pos * 10000.0), &send_index);
   sendFrameEXTId(controller_id | ((uint32_t)CAN_PACKET_SET_POS << 8), buffer, send_index);
 }
 

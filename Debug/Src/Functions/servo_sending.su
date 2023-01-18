@@ -1,0 +1,12 @@
+../Src/Functions/servo_sending.c:13:6:sendFrameEXTId	16	static
+../Src/Functions/servo_sending.c:25:6:buffer_append_int32	24	static
+../Src/Functions/servo_sending.c:33:6:buffer_append_int16	24	static
+../Src/Functions/servo_sending.c:39:6:comm_can_set_duty	24	static
+../Src/Functions/servo_sending.c:46:6:comm_can_set_current	24	static
+../Src/Functions/servo_sending.c:53:6:comm_can_set_cb	24	static
+../Src/Functions/servo_sending.c:60:6:comm_can_set_rpm	24	static
+../Src/Functions/servo_sending.c:67:6:comm_can_set_pos	24	static
+../Src/Functions/servo_sending.c:74:6:comm_can_set_origin	24	static
+../Src/Functions/servo_sending.c:80:6:comm_can_set_pos_spd	40	static
+../Src/Functions/servo_sending.c:92:6:enter_motor_mode_servo	16	static
+../Src/Functions/servo_sending.c:104:6:exit_motor_mode_servo	16	static

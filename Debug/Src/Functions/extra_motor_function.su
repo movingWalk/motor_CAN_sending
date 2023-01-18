@@ -1,0 +1,4 @@
+../Src/Functions/extra_motor_function.c:13:6:pull_up	8	static
+../Src/Functions/extra_motor_function.c:24:6:enter_motor_mode	8	static
+../Src/Functions/extra_motor_function.c:37:6:exit_motor_mode	8	static
+../Src/Functions/extra_motor_function.c:50:6:set_zero	8	static

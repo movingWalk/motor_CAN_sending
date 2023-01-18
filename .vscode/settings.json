@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "servo_receiving.h": "c"
+        "servo_receiving.h": "c",
+        "mit_receiving.h": "c",
+        "servo_sending.h": "c"
     }
 }
