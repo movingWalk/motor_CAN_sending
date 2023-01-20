@@ -1454,12 +1454,15 @@
                     <name>$PROJ_DIR$\..\Src\Functions\mit_sending.h</name>
                 </file>
                 <file>
+<<<<<<< HEAD
                     <name>$PROJ_DIR$\..\Src\Functions\motor_control_demos.c</name>
                 </file>
                 <file>
                     <name>$PROJ_DIR$\..\Src\Functions\motor_control_demos.h</name>
                 </file>
                 <file>
+=======
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
                     <name>$PROJ_DIR$\..\Src\Functions\servo_receiving.c</name>
                 </file>
                 <file>

@@ -45,7 +45,11 @@ C:\Users\KwakDongwook\Documents\canopen_example\EWARM\canopen_example\BrowseInfo
   C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\mit_receiving.h \
   C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\extra_motor_function.h \
   C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\servo_sending.h \
+<<<<<<< HEAD
   C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\servo_receiving.h \
   C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\motor_control_demos.h \
   C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\math.h \
   C:\Program\ Files\IAR\ Systems\Embedded\ Workbench\ 9.0\arm\inc\c\DLib_float_setup.h
+=======
+  C:\Users\KwakDongwook\Documents\canopen_example\Src\Functions\servo_receiving.h
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072

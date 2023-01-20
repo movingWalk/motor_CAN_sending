@@ -1,7 +1,11 @@
 {
     "files.associations": {
+<<<<<<< HEAD
         "servo_receiving.h": "c",
         "mit_receiving.h": "c",
         "servo_sending.h": "c"
+=======
+        "servo_receiving.h": "c"
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
     }
 }

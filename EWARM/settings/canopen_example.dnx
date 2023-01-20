@@ -28,7 +28,11 @@
         <EnforceMemoryConfiguration>1</EnforceMemoryConfiguration>
     </ArmDriver>
     <DebugChecksum>
+<<<<<<< HEAD
         <Checksum>1366934891</Checksum>
+=======
+        <Checksum>1329781830</Checksum>
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
     </DebugChecksum>
     <Exceptions>
         <StopOnUncaught>_ 0</StopOnUncaught>
@@ -62,11 +66,35 @@
         <ITMportsLogFile>0</ITMportsLogFile>
         <ITMlogFile>$PROJ_DIR$\ITM.log</ITMlogFile>
     </SWOTraceHWSettings>
+<<<<<<< HEAD
     <LogFile>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ "$PROJ_DIR$\LogFile1.log"</LogFile>
         <Category2>_ 2</Category2>
     </LogFile>
+=======
+    <PlDriver>
+        <FirstRun>0</FirstRun>
+        <MemConfigValue>C:\Program Files\IAR Systems\Embedded Workbench 9.0\arm\CONFIG\debugger\ST\STM32F446RE.ddf</MemConfigValue>
+    </PlDriver>
+    <Trace1>
+        <Enabled>0</Enabled>
+        <ShowSource>1</ShowSource>
+    </Trace1>
+    <ArmDriver>
+        <EnableCache>0</EnableCache>
+        <EnforceMemoryConfiguration>1</EnforceMemoryConfiguration>
+    </ArmDriver>
+    <LogFile>
+        <LoggingEnabled>_ 0</LoggingEnabled>
+        <LogFile>_ ""</LogFile>
+        <Category2>_ 0</Category2>
+    </LogFile>
+    <array_types>
+        <Fmt0>uint8_t[10]	3	0</Fmt0>
+        <Fmt1>uint8_t[8]	4	0</Fmt1>
+    </array_types>
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
     <watch_formats>
         <Fmt0>{W}42:count	3	0</Fmt0>
         <Fmt1>{W}42:flag	3	0</Fmt1>

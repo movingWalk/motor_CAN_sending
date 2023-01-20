@@ -1,6 +1,7 @@
 # ninja log v5
 6	34	6934766769876616	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/EWARM/startup_stm32f446xx.o	5205fa4c47c4e2de
 3	341	6933906761936105	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/CANOpen/CANOpen_batch.o	759ec58f79bfb211
+<<<<<<< HEAD
 825	1163	6958968841505584	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/stm32f4xx_it.o	45872e6a72336b3d
 1172	1481	6958968844677114	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/CMSIS/system_stm32f4xx.o	a0cd77d919226d0e
 203	777	6958968837615989	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/stm32f4xx_hal_msp.o	832d591fd739a89f
@@ -47,3 +48,49 @@
 2	391	6958973477819164	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
 398	539	6958973479312250	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	2b24d15e2b6593ce
 582	605	6958973480071229	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+=======
+486	809	6934834213340668	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/stm32f4xx_it.o	45872e6a72336b3d
+240	559	6934834210747592	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/CMSIS/system_stm32f4xx.o	a0cd77d919226d0e
+17	476	6934834210009566	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/stm32f4xx_hal_msp.o	832d591fd739a89f
+332	446	6934785345205691	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	df92304573851ade
+8	451	6933906763023215	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/CANOpen/CANOpen.o	215c57d6aa34b9fb
+2	322	6934785343939082	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+15	443	6933906762923465	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/CANOpen/CANOpen_hw_appl.o	50bf130d881d7ac
+2047	3076	6934834235890382	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.o	7d7dcc414258347c
+1566	1884	6934834224121844	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr.o	9d1efecbc24321cc
+54	532	6934834210568063	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.o	aa82b64fa62c1785
+1224	1642	6934834221708292	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash.o	f3abc36e2c86adc6
+567	1289	6934834218167771	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_can.o	7d19d5b423aee117
+951	1555	6934834220790731	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.o	56aa1b44458a3e10
+823	1202	6934834217300094	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_exti.o	13ae11f25b3e7613
+596	1214	6934834217329991	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma_ex.o	fc0ff383fb500aff
+1297	1584	6934834220980225	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash_ramfunc.o	e63db1f6edc116cd
+1210	1605	6934834221179703	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_cortex.o	bf0530ec3b46e4a7
+1654	2083	6934834226096568	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_gpio.o	4ee4bf0f9f71aba
+1614	2039	6934834225647749	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_flash_ex.o	3db6ec7a7607dd46
+1592	1957	6934834224819985	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_pwr_ex.o	74eae3cb27b344f2
+1894	2534	6934834230604500	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc.o	2e44ab1c5bb7504a
+2093	3051	6934834235790904	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_rcc_ex.o	34feaa25e303b8ac
+1969	4087	6934834246083122	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim.o	c50cbd3092e20c84
+471	487	6934785345704059	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+540	939	6934834214657128	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/mit_sending.o	4c5128fbb1e2a963
+1	301	6934834208334042	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/mit_receiving.o	5291314a3d0bb6f2
+14	233	6934834207645886	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/extra_motor_function.o	3ac59f2c60e0435a
+10	78	6934834665327765	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/servo_receiving.o	3448471f13aba88c
+2	315	6934834667651425	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+6	326	6934834667651425	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/servo_sending.o	68a4a5f942921bd4
+3	292	6934835623578853	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+2	293	6934836516819278	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+6	311	6934836516879071	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/Functions/servo_sending.o	68a4a5f942921bd4
+2	305	6934837082644576	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+3	367	6934837498253133	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+375	481	6934837499440273	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	d856d2b22eff317e
+514	532	6934837500038359	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+2	289	6934837880675541	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+297	409	6934837881862296	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	d856d2b22eff317e
+438	452	6934837882420521	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+2	318	6934838202543135	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+2	288	6934838567457359	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Obj/Application/User/main.o	962e5238c58f313d
+296	402	6934838568613933	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.out	d856d2b22eff317e
+437	449	6934838569172448	C:/Users/KwakDongwook/Documents/canopen_example/EWARM/canopen_example/Exe/canopen_example.hex	bb6112a3bacad963
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072

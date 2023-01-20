@@ -27,7 +27,10 @@
 #include "Functions/extra_motor_function.h"
 #include "Functions/servo_sending.h"
 #include "Functions/servo_receiving.h"
+<<<<<<< HEAD
 #include "Functions/motor_control_demos.h"
+=======
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,6 +76,7 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 
             /*
+<<<<<<< HEAD
             Sensors ADC
             */
 
@@ -80,6 +84,8 @@ uint16_t adcValues[1];
 
 
             /*
+=======
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
             SERVO MODE
             */
 
@@ -91,6 +97,7 @@ float motor_cur;
 int8_t motor_temp;
 int8_t motor_error;
 
+<<<<<<< HEAD
 
 float rpm=300.0f;
 float position=180.0f;
@@ -106,6 +113,14 @@ uint8_t flag=14;
 CAN_RxHeaderTypeDef   Rx0Header;
 uint8_t               Rx0Data[8];
 
+=======
+//****************************Interrupt*************************//
+CAN_RxHeaderTypeDef   Rx0Header;
+uint8_t               Rx0Data[8];
+float rpm=1000.0f;
+uint8_t controller_id=0x68;
+uint8_t flag=14;
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if(HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &Rx0Header, Rx0Data) == HAL_OK){
@@ -113,6 +128,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   }  
 }
 
+<<<<<<< HEAD
 
 volatile uint8_t      count=0;
 volatile uint8_t      avg_count = 0;
@@ -149,10 +165,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     //comm_can_set_duty(controller_id, duty);
     //gravity_compensation(controller_id, 0.2, 1, 0.52);
   } 
+=======
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+  if(htim == &htim1){ 
+    comm_can_set_rpm(controller_id, rpm);
+  }
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
   if(GPIO_Pin == GPIO_PIN_13){
+<<<<<<< HEAD
     if (flag==0){
       comm_can_set_origin(controller_id, 1);
     }
@@ -161,24 +184,44 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
       // [[ Start main loop ]] (1kHz)
       gravity_compensation_initialize(controller_id);
       HAL_TIM_Base_Start_IT(&htim1);
+=======
+    if(flag==14){
+      // [[ Timer1 Init ]]
+      // [[ Start main loop ]] (1kHz)
+      enter_motor_mode_servo(controller_id);                                 //motor mode enter
+      
+      
+      //HAL_TIM_Base_Start_IT(&htim1);
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
       
     }
     else if(flag==82){
       
+<<<<<<< HEAD
       HAL_TIM_Base_Stop_IT(&htim1);
+=======
+      //HAL_TIM_Base_Stop_IT(&htim1);
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
       exit_motor_mode_servo(controller_id);                                 //exit
 
     }
     else if(flag==2){
+<<<<<<< HEAD
       // comm_can_set_rpm(controller_id, rpm);                    //send
       //comm_can_set_pos(controller_id, position);
       //comm_can_set_current(controller_id, current);
       //comm_can_set_duty(controller_id, duty);
+=======
+      comm_can_set_rpm(controller_id, rpm);                    //send
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
       }
     }
   }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
 /*
                                 .
                                 .

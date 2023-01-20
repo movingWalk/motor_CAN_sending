@@ -1063,10 +1063,65 @@
   <group>
     <name>Application</name>
     <group>
+<<<<<<< HEAD
       <name>EWARM</name>
       <file>
         <name>$PROJ_DIR$\startup_stm32f446xx.s</name>
       </file>
+=======
+        <name>Application</name>
+        <group>
+            <name>EWARM</name>
+            <file>
+                <name>$PROJ_DIR$\startup_stm32f446xx.s</name>
+            </file>
+        </group>
+        <group>
+            <name>User</name>
+            <group>
+                <name>Functions</name>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\extra_motor_function.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\extra_motor_function.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_receiving.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_receiving.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_sending.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\mit_sending.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_receiving.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_receiving.h</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_sending.c</name>
+                </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Src\Functions\servo_sending.h</name>
+                </file>
+            </group>
+            <file>
+                <name>$PROJ_DIR$\..\Src\main.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\stm32f4xx_hal_msp.c</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\..\Src\stm32f4xx_it.c</name>
+            </file>
+        </group>
+>>>>>>> 661b406dc0e2bcc68daf654e5711c088c7d3b072
     </group>
     <group>
       <name>User</name>
